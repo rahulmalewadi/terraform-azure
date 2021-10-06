@@ -1,39 +1,85 @@
+#############################################################################
+# TERRAFORM CONFIG
+#############################################################################
+
 terraform {
-  backend "azurerm" {
-    resource_group_name  = "tamopstfstates"
-    storage_account_name = "tfstatedevops"
-    container_name       = "terraformgithubexample"
-    key                  = "terraformgithubexample.tfstate"
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 2.0"
+    }
   }
 }
- 
+
+#############################################################################
+# VARIABLES
+#############################################################################
+
+variable "resource_group_name" {
+  type = string
+}
+
+variable "location" {
+  type    = string
+  default = "eastus"
+}
+
+
+variable "vnet_cidr_range" {
+  type    = string
+  default = "10.0.0.0/16"
+}
+
+variable "subnet_prefixes" {
+  type    = list(string)
+  default = ["10.0.0.0/24", "10.0.1.0/24"]
+}
+
+variable "subnet_names" {
+  type    = list(string)
+  default = ["web", "database"]
+}
+
+#############################################################################
+# PROVIDERS
+#############################################################################
+
 provider "azurerm" {
-  # The "feature" block is required for AzureRM provider 2.x.
-  # If you're using version 1.x, the "features" block is not allowed.
-  version = "~>2.0"
   features {}
 }
- 
-data "azurerm_client_config" "current" {}
- 
-#Create Resource Group
-resource "azurerm_resource_group" "tamops" {
-  name     = "tamops"
-  location = "eastus2"
+
+#############################################################################
+# RESOURCES
+#############################################################################
+
+resource "azurerm_resource_group" "vnet_main" {
+  name     = var.resource_group_name
+  location = var.location
 }
- 
-#Create Virtual Network
-resource "azurerm_virtual_network" "vnet" {
-  name                = "tamops-vnet"
-  address_space       = ["192.168.0.0/16"]
-  location            = "eastus2"
-  resource_group_name = azurerm_resource_group.tamops.name
+
+module "vnet-main" {
+  source              = "Azure/vnet/azurerm"
+  version             = "~> 2.0"
+  resource_group_name = azurerm_resource_group.vnet_main.name
+  vnet_name           = var.resource_group_name
+  address_space       = [var.vnet_cidr_range]
+  subnet_prefixes     = var.subnet_prefixes
+  subnet_names        = var.subnet_names
+  nsg_ids             = {}
+
+  tags = {
+    environment = "dev"
+    costcenter  = "it"
+
+  }
+
+  depends_on = [azurerm_resource_group.vnet_main]
 }
- 
-# Create Subnet
-resource "azurerm_subnet" "subnet" {
-  name                 = "subnet"
-  resource_group_name  = azurerm_resource_group.tamops.name
-  virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefix       = "192.168.0.0/24"
+
+#############################################################################
+# OUTPUTS
+#############################################################################
+
+output "vnet_id" {
+  value = module.vnet-main.vnet_id
 }
