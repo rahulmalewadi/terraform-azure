@@ -17,6 +17,7 @@ terraform {
 
 variable "resource_group_name" {
   type = string
+  default = "timepass"
 }
 
 variable "location" {
