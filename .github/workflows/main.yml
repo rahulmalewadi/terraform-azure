@@ -57,7 +57,7 @@ jobs:
       run: |
         
         
-        $res= Invoke-WebRequest -Method 'POST' -Body $payload -Uri '${{env.DISPATCH_URL}}' `
+        $res= Invoke-WebRequest -Method 'POST' -Body $payload -Uri '${{env.DISPATCH_URL}}' 
           -Headers @{'Accept' = 'application/vnd.github.everest-preview+json'; 'Authorization' = 'token ${{secrets.PAT_TOKEN}}'}
  
  
