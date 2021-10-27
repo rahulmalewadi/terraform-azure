@@ -63,10 +63,21 @@ jobs:
        
     #  run: python api.py
       #this api post request not working   
-   # - name: run second file
-    #  run: |
+    - name: run second file
+      run: |
+        POST https://api.github.com/repos/rahulmalewadi/terraform-azure/dispatches
+
+        Authorization: Bearer ${{GITHUB_TOKEN}}
+
+        {"event_type": "build_workflow"}
+        
+        curl --request POST \
+          --url 'https://api.github.com/repos/rahulmalewadi/terraform-azure/dispatches' \
+          --header 'authorization: Bearer ${{GITHUB_TOKEN}}' \
+          --data '{"event_type": "build_workflow"}
      # curl -XPOST -u "${{secrets.USERNAME}}:${{secrets.PAT_TOKEN}}" -H "Accept: application/vnd.github.everest-preview+json" -H "Content-Type: application/json" https://api.github.com/repos/rahulmalewadi/terraform-azure/dispatches --data '{"event_type": "deploy_workflow"}'
 
+      
 
       
 
