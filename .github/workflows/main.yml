@@ -63,11 +63,10 @@ jobs:
        
     #  run: python api.py
       #this api post request not working   
-    - name: run second file
+    - name: run second file by repo-dispatch 
       run: |
         curl -XPOST -u "rahulmalewadi:${{secrets.PAT_TOKEN}}" -H "Accept: application/vnd.github.everest-preview+json" -H "Content-Type: application/json" https://api.github.com/repos/rahulmalewadi/terraform-azure/dispatches --data '{"event_type": "deploy_workflow"}'
-     # curl -XPOST -u "${{secrets.USERNAME}}:${{secrets.PAT_TOKEN}}" -H "Accept: application/vnd.github.everest-preview+json" -H "Content-Type: application/json" https://api.github.com/repos/rahulmalewadi/terraform-azure/dispatches --data '{"event_type": "deploy_workflow"}'
-
+     
       
 
       
